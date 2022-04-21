@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
 	export async function load({ session, url }) {
 		const { authenticated = false } = session?.auth ?? {};
-		console.log(session);
+
 		if (authenticated && url.pathname === '/login') {
 			return { status: 302, redirect: '/' };
 		}

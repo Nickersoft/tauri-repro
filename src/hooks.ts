@@ -1,24 +1,19 @@
 import cookie from 'cookie';
-import { v4 as uuid } from '@lukeed/uuid';
-import type { Handle } from '@sveltejs/kit';
 
-export const handle: Handle = async ({ event, resolve }) => {
-	const cookies = cookie.parse(event.request.headers.get('cookie') || '');
-	event.locals.userid = cookies.userid || uuid();
+export async function handle({ event, event: { request }, resolve }) {
+	return resolve(event);
+}
 
-	const response = await resolve(event);
+export async function getSession({ request }) {
+	const { auth } = cookie.parse(request?.headers?.get('cookie') ?? '');
 
-	if (!cookies.userid) {
-		// if this is the first time the user has visited this app,
-		// set a cookie so that we recognise them when they return
-		response.headers.set(
-			'set-cookie',
-			cookie.serialize('userid', event.locals.userid, {
-				path: '/',
-				httpOnly: true
-			})
-		);
+	if (auth) {
+		return {
+			auth: {
+				authenticated: true
+			}
+		};
 	}
 
-	return response;
-};
+	return { auth: { authenticated: false } };
+}
